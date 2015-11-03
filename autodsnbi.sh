@@ -55,7 +55,7 @@ declare -r SMB1ONLY="-smb1only"
 #   %v  OS version
 #   %b  OS build
 #   %d  Build date
-declare -r CUSTOM_TITLE="DS %v (%b) %d"
+declare -r CUSTOM_TITLE="DS %v %b %d"
 # Path to background image (absolute path, or relative to source volume).
 declare -r CUSTOM_BACKGROUND="System/Library/CoreServices/DefaultDesktop.jpg"
 
