@@ -1,8 +1,8 @@
 #!/bin/bash
 #
-# Sample usage:
-#
-#    sudo ./AutoDSNBI.sh osx_updated_140526-10.9.3-13D65.hfs.dmg 1093 DS10.9.3 ~/Downloads
+# History:
+# * 1.1:    Support for DS 1.6.17
+# * 1.0:    Initial release
 
 
 ###############################################################################
@@ -141,12 +141,19 @@ fi
 
 DSADMIN_PATH="/Applications/Utilities/DeployStudio Admin.app"
 DSASST_PATH="$DSADMIN_PATH/Contents/Applications/DeployStudio Assistant.app"
-SYS_BUILD_PATH="$DSASST_PATH/Contents/Resources/sysBuilder/sys_builder.sh"
-if [[ ! -x "$SYS_BUILD_PATH" ]]; then
+SYS_BUILDER_DIR="$DSASST_PATH/Contents/Resources/sysBuilder"
+if [[ -x "$SYS_BUILDER_DIR/sys_builder_rp.sh" ]]; then
+    SYS_BUILDER_SCRIPT="sys_builder_rp.sh"
+    SYS_BUILDER_PATH="$SYS_BUILDER_DIR/$SYS_BUILDER_SCRIPT"
+else
+    SYS_BUILDER_SCRIPT="sys_builder.sh"
+    SYS_BUILDER_PATH="$SYS_BUILDER_DIR/$SYS_BUILDER_SCRIPT"
+fi
+if [[ ! -x "$SYS_BUILDER_PATH" ]]; then
     die $EX_UNAVAILABLE "DeployStudio Assistant not found"
 fi
-EXPECTED_USAGE="Usage: sys_builder.sh -basesystem <source volume> -type local -volume <volume name> [-erasedisk][-loc <language>][-serverurl <server url>][-serverurl2 <server url 2>][-disableversionsmismatchalerts][-login <login>][-password <password>][-ardlogin <login>][-ardpassword <password>][-displaylogs][-timeout =<duration in seconds>][-displaysleep <duration in minutes>][-enableruby][-enablepython][-enablecustomtcpstacksettings][-disablewirelesssupport][-ntp <network time server>][-customtitle <Runtime mainwindow title>][-custombackground <Runtime custom background image path>][-smb1only]"
-usage=$("$SYS_BUILD_PATH" | grep Usage:)
+EXPECTED_USAGE="Usage: $SYS_BUILDER_SCRIPT -basesystem <source volume> -type local -volume <volume name> [-erasedisk][-loc <language>][-serverurl <server url>][-serverurl2 <server url 2>][-disableversionsmismatchalerts][-login <login>][-password <password>][-ardlogin <login>][-ardpassword <password>][-displaylogs][-timeout =<duration in seconds>][-displaysleep <duration in minutes>][-enableruby][-enablepython][-enablecustomtcpstacksettings][-disablewirelesssupport][-ntp <network time server>][-customtitle <Runtime mainwindow title>][-custombackground <Runtime custom background image path>][-smb1only]"
+usage=$("$SYS_BUILDER_PATH" | grep Usage:)
 if [[ "$usage" != "$EXPECTED_USAGE" ]]; then
     die $EX_SOFTWARE "Unexpected usage for sys_builder.sh"
 fi
@@ -193,7 +200,7 @@ BKG_PATH="/tmp/_$(uuidgen)_background.jpg"
 
 # Build nbi.
 
-"$SYS_BUILD_PATH" \
+"$SYS_BUILDER_PATH" \
     -basesystem "$src_vol" \
     -type netboot \
     -id "$nb_id" \
