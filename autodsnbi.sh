@@ -1,6 +1,7 @@
 #!/bin/bash
 #
 # History:
+# * 1.2:    Added OS check for sys_builder_rp.sh vs sys_builder.sh
 # * 1.1:    Support for DS 1.6.17
 # * 1.0:    Initial release
 
@@ -136,13 +137,17 @@ if [[ -e "$dest_nbi" ]]; then
     die $EX_CANTCREAT "$dest_nbi already exists"
 fi
 
+# OS version check
+
+osvers_major=$(/usr/bin/sw_vers -productVersion | awk -F. '{print $1}')
+osvers_minor=$(/usr/bin/sw_vers -productVersion | awk -F. '{print $2}')
 
 # Requirements.
 
 DSADMIN_PATH="/Applications/Utilities/DeployStudio Admin.app"
 DSASST_PATH="$DSADMIN_PATH/Contents/Applications/DeployStudio Assistant.app"
 SYS_BUILDER_DIR="$DSASST_PATH/Contents/Resources/sysBuilder"
-if [[ -x "$SYS_BUILDER_DIR/sys_builder_rp.sh" ]]; then
+if [[ ${osvers_major} -eq 10 ]] && [[ ${osvers_minor} -ge 11 ]] && [[ -x "$SYS_BUILDER_DIR/sys_builder_rp.sh" ]]; then
     SYS_BUILDER_SCRIPT="sys_builder_rp.sh"
     SYS_BUILDER_PATH="$SYS_BUILDER_DIR/$SYS_BUILDER_SCRIPT"
 else
